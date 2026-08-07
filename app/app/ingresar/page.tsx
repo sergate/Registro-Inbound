@@ -3,7 +3,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import AppHeader from "@/components/AppHeader";
 import OperarioWorkflow from "@/components/OperarioWorkflow";
 
-export default async function OperarioPage() {
+export default async function IngresarPalletPage() {
   const profile = await getCurrentProfile();
 
   if (!profile) {

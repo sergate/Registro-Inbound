@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentProfile, homeForRole } from "@/lib/auth/session";
+import { getCurrentProfile, resolveHome, isMobileRequest } from "@/lib/auth/session";
 
 export default async function RootPage() {
   const profile = await getCurrentProfile();
@@ -8,5 +8,6 @@ export default async function RootPage() {
     redirect("/login");
   }
 
-  redirect(homeForRole(profile.role));
+  const mobile = await isMobileRequest();
+  redirect(resolveHome(profile.role, mobile));
 }

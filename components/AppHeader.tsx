@@ -1,7 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import LogoutButton from "./LogoutButton";
 
 export default function AppHeader({
   username,
@@ -10,24 +7,13 @@ export default function AppHeader({
   username: string;
   roleLabel: string;
 }) {
-  const router = useRouter();
-
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
-
   return (
     <header style={styles.header}>
       <div>
         <div style={styles.username}>{username}</div>
         <div style={styles.role}>{roleLabel}</div>
       </div>
-      <button style={styles.logout} onClick={handleLogout}>
-        Salir
-      </button>
+      <LogoutButton />
     </header>
   );
 }
@@ -48,12 +34,5 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: "0.8rem",
     color: "var(--text-dim)",
     textTransform: "capitalize",
-  },
-  logout: {
-    padding: "0.5rem 1rem",
-    borderRadius: 8,
-    border: "1px solid var(--border)",
-    background: "transparent",
-    color: "var(--text)",
   },
 };
