@@ -1,13 +1,16 @@
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/auth/session";
+import { getCurrentProfile, homeForRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import AppHeader from "@/components/AppHeader";
 
 export default async function SupervisorPage() {
   const profile = await getCurrentProfile();
 
-  if (!profile || (profile.role !== "supervisor" && profile.role !== "admin")) {
+  if (!profile) {
     redirect("/login");
+  }
+  if (profile.role !== "supervisor" && profile.role !== "admin") {
+    redirect(homeForRole(profile.role));
   }
 
   const supabase = await createClient();

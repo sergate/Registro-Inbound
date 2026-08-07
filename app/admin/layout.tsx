@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/auth/session";
+import { getCurrentProfile, homeForRole } from "@/lib/auth/session";
 import AppHeader from "@/components/AppHeader";
 
 export default async function AdminLayout({
@@ -9,8 +9,11 @@ export default async function AdminLayout({
 }) {
   const profile = await getCurrentProfile();
 
-  if (!profile || profile.role !== "admin") {
+  if (!profile) {
     redirect("/login");
+  }
+  if (profile.role !== "admin") {
+    redirect(homeForRole(profile.role));
   }
 
   return (
