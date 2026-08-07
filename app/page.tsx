@@ -1,0 +1,12 @@
+import { redirect } from "next/navigation";
+import { getCurrentProfile, homeForRole } from "@/lib/auth/session";
+
+export default async function RootPage() {
+  const profile = await getCurrentProfile();
+
+  if (!profile) {
+    redirect("/login");
+  }
+
+  redirect(homeForRole(profile.role));
+}
