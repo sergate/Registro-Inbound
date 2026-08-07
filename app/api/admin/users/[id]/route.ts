@@ -1,32 +1,13 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireAdminUser } from "@/lib/auth/requireAdmin";
 import type { UserRole } from "@/types/database";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, active")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || !profile.active || profile.role !== "admin") return null;
-
-  return user;
-}
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const admin = await requireAdmin();
+  const admin = await requireAdminUser();
   if (!admin) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
@@ -70,6 +51,39 @@ export async function PATCH(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const admin = await requireAdminUser();
+  if (!admin) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  if (id === admin.id) {
+    return NextResponse.json(
+      { error: "No podés eliminar tu propio usuario" },
+      { status: 400 }
+    );
+  }
+
+  const adminClient = createAdminClient();
+  const { error } = await adminClient.auth.admin.deleteUser(id);
+
+  if (error) {
+    return NextResponse.json(
+      {
+        error: `No se pudo eliminar (${error.message}). Si el usuario tiene pallets o etiquetas asociadas, desactivalo en lugar de borrarlo.`,
+      },
+      { status: 400 }
+    );
   }
 
   return NextResponse.json({ ok: true });

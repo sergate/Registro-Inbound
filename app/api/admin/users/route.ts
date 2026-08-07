@@ -2,29 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { usernameToEmail } from "@/lib/constants";
+import { requireAdminUser } from "@/lib/auth/requireAdmin";
 import type { UserRole } from "@/types/database";
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, active")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || !profile.active || profile.role !== "admin") return null;
-
-  return user;
-}
-
 export async function GET() {
-  const admin = await requireAdmin();
+  const admin = await requireAdminUser();
   if (!admin) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
@@ -43,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const admin = await requireAdmin();
+  const admin = await requireAdminUser();
   if (!admin) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }

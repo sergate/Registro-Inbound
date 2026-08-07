@@ -47,6 +47,22 @@ export default function UsersTable() {
     setBusyId(null);
   }
 
+  async function deleteUser(id: string, username: string) {
+    if (!confirm(`¿Borrar el usuario "${username}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    setBusyId(id);
+    setError(null);
+    const res = await fetch(`/api/admin/users/${id}`, { method: "DELETE" });
+    const body = await res.json();
+    if (!res.ok) {
+      setError(body.error ?? "No se pudo borrar el usuario");
+    } else {
+      await load();
+    }
+    setBusyId(null);
+  }
+
   if (error) return <p style={{ color: "var(--danger)", padding: "1rem" }}>{error}</p>;
   if (!users) return <p style={{ padding: "1rem" }}>Cargando...</p>;
 
@@ -58,6 +74,7 @@ export default function UsersTable() {
             <th style={styles.th}>Usuario</th>
             <th style={styles.th}>Rol</th>
             <th style={styles.th}>Activo</th>
+            <th style={styles.th}></th>
           </tr>
         </thead>
         <tbody>
@@ -88,6 +105,15 @@ export default function UsersTable() {
                   }}
                 >
                   {u.active ? "Activo" : "Inactivo"}
+                </button>
+              </td>
+              <td style={styles.td}>
+                <button
+                  disabled={busyId === u.id}
+                  onClick={() => deleteUser(u.id, u.username)}
+                  style={styles.delete}
+                >
+                  Borrar
                 </button>
               </td>
             </tr>
@@ -127,6 +153,14 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 6,
     border: "none",
     color: "#fff",
+    fontSize: "0.85rem",
+  },
+  delete: {
+    padding: "0.4rem 0.75rem",
+    borderRadius: 6,
+    border: "1px solid var(--danger)",
+    background: "transparent",
+    color: "var(--danger)",
     fontSize: "0.85rem",
   },
 };

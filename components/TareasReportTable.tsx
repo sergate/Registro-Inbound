@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatDateTime } from "@/lib/datetime";
 
 interface Label {
+  id: string;
   ean13: string;
   scanned_at: string;
 }
@@ -18,8 +20,17 @@ interface PalletRow {
   labels: Label[];
 }
 
-export default function TareasReportTable({ pallets }: { pallets: PalletRow[] }) {
+export default function TareasReportTable({
+  pallets,
+  isAdmin,
+}: {
+  pallets: PalletRow[];
+  isAdmin: boolean;
+}) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function toggle(id: string) {
     setExpanded((prev) => {
@@ -30,8 +41,44 @@ export default function TareasReportTable({ pallets }: { pallets: PalletRow[] })
     });
   }
 
+  async function deletePallet(e: React.MouseEvent, palletId: string, palletNumber: number) {
+    e.stopPropagation();
+    if (
+      !confirm(
+        `¿Borrar el pallet #${palletNumber} y sus etiquetas escaneadas? Esta acción no se puede deshacer.`
+      )
+    ) {
+      return;
+    }
+    setBusyId(palletId);
+    setError(null);
+    const res = await fetch(`/api/admin/pallets/${palletId}`, { method: "DELETE" });
+    const body = await res.json();
+    setBusyId(null);
+    if (!res.ok) {
+      setError(body.error ?? "No se pudo borrar el pallet");
+      return;
+    }
+    router.refresh();
+  }
+
+  async function deleteLabel(labelId: string, ean13: string) {
+    if (!confirm(`¿Borrar la etiqueta ${ean13}?`)) return;
+    setBusyId(labelId);
+    setError(null);
+    const res = await fetch(`/api/admin/labels/${labelId}`, { method: "DELETE" });
+    const body = await res.json();
+    setBusyId(null);
+    if (!res.ok) {
+      setError(body.error ?? "No se pudo borrar la etiqueta");
+      return;
+    }
+    router.refresh();
+  }
+
   return (
     <div style={{ overflowX: "auto" }}>
+      {error && <p style={{ color: "var(--danger)", marginBottom: "0.5rem" }}>{error}</p>}
       <table style={styles.table}>
         <thead>
           <tr>
@@ -42,6 +89,7 @@ export default function TareasReportTable({ pallets }: { pallets: PalletRow[] })
             <th style={styles.th}>Bultos</th>
             <th style={styles.th}>Apertura</th>
             <th style={styles.th}>Cierre</th>
+            {isAdmin && <th style={styles.th}></th>}
           </tr>
         </thead>
         <tbody>
@@ -63,11 +111,22 @@ export default function TareasReportTable({ pallets }: { pallets: PalletRow[] })
                 <td style={styles.td}>{p.labels.length}</td>
                 <td style={styles.td}>{formatDateTime(p.opened_at)}</td>
                 <td style={styles.td}>{formatDateTime(p.closed_at)}</td>
+                {isAdmin && (
+                  <td style={styles.td}>
+                    <button
+                      disabled={busyId === p.id}
+                      onClick={(e) => deletePallet(e, p.id, p.pallet_number)}
+                      style={styles.delete}
+                    >
+                      Borrar
+                    </button>
+                  </td>
+                )}
               </tr>
               {expanded.has(p.id) && (
                 <tr key={`${p.id}-detail`}>
                   <td style={styles.tdDetail}></td>
-                  <td style={styles.tdDetail} colSpan={6}>
+                  <td style={styles.tdDetail} colSpan={isAdmin ? 7 : 6}>
                     {p.labels.length === 0 ? (
                       <span style={{ color: "var(--text-dim)" }}>
                         Sin etiquetas escaneadas.
@@ -75,11 +134,20 @@ export default function TareasReportTable({ pallets }: { pallets: PalletRow[] })
                     ) : (
                       <ul style={styles.labelList}>
                         {p.labels.map((l) => (
-                          <li key={l.ean13} style={styles.labelItem}>
+                          <li key={l.id} style={styles.labelItem}>
                             <span style={{ fontFamily: "monospace" }}>{l.ean13}</span>
                             <span style={{ color: "var(--text-dim)" }}>
                               {formatDateTime(l.scanned_at)}
                             </span>
+                            {isAdmin && (
+                              <button
+                                disabled={busyId === l.id}
+                                onClick={() => deleteLabel(l.id, l.ean13)}
+                                style={styles.deleteLabel}
+                              >
+                                Borrar
+                              </button>
+                            )}
                           </li>
                         ))}
                       </ul>
@@ -130,8 +198,26 @@ const styles: Record<string, React.CSSProperties> = {
   },
   labelItem: {
     display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
-    maxWidth: 320,
+    gap: "0.75rem",
+    maxWidth: 420,
     fontSize: "0.85rem",
+  },
+  delete: {
+    padding: "0.3rem 0.6rem",
+    borderRadius: 6,
+    border: "1px solid var(--danger)",
+    background: "transparent",
+    color: "var(--danger)",
+    fontSize: "0.8rem",
+  },
+  deleteLabel: {
+    padding: "0.2rem 0.5rem",
+    borderRadius: 6,
+    border: "1px solid var(--danger)",
+    background: "transparent",
+    color: "var(--danger)",
+    fontSize: "0.75rem",
   },
 };
