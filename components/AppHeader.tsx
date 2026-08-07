@@ -1,4 +1,4 @@
-import LogoutButton from "./LogoutButton";
+import HamburgerNav from "./HamburgerNav";
 
 export default function AppHeader({
   username,
@@ -13,7 +13,7 @@ export default function AppHeader({
         <div style={styles.username}>{username}</div>
         <div style={styles.role}>{roleLabel}</div>
       </div>
-      <LogoutButton />
+      <HamburgerNav />
     </header>
   );
 }
