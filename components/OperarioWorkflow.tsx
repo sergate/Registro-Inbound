@@ -7,6 +7,7 @@ import PalletHeader from "./PalletHeader";
 import DuplicateLabelAlert from "./DuplicateLabelAlert";
 import ClosePalletConfirm from "./ClosePalletConfirm";
 import ReopenPalletPrompt from "./ReopenPalletPrompt";
+import ManualEntryModal from "./ManualEntryModal";
 
 interface OpenPallet {
   id: string;
@@ -23,6 +24,7 @@ export default function OperarioWorkflow({ userId }: { userId: string }) {
   const [lastScanned, setLastScanned] = useState<string | null>(null);
   const [duplicateEan, setDuplicateEan] = useState<string | null>(null);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
   const [reopenPrompt, setReopenPrompt] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -102,6 +104,12 @@ export default function OperarioWorkflow({ userId }: { userId: string }) {
     setBusy(false);
   }
 
+  async function handleManualEntry(ean13: string) {
+    await handleScan(ean13);
+    setShowManualEntry(false);
+    scanInputRef.current?.focus();
+  }
+
   function dismissDuplicate() {
     setDuplicateEan(null);
     scanInputRef.current?.focus();
@@ -165,6 +173,15 @@ export default function OperarioWorkflow({ userId }: { userId: string }) {
             lastScanned={lastScanned}
           />
           <ScanInput ref={scanInputRef} onScan={handleScan} disabled={busy} />
+          <div style={styles.manualWrapper}>
+            <button
+              disabled={busy}
+              onClick={() => setShowManualEntry(true)}
+              style={styles.manualButton}
+            >
+              Cargar etiqueta manualmente
+            </button>
+          </div>
           <div style={styles.closeWrapper}>
             <button
               disabled={busy}
@@ -188,6 +205,17 @@ export default function OperarioWorkflow({ userId }: { userId: string }) {
           onConfirm={confirmClosePallet}
           onCancel={() => {
             setShowCloseConfirm(false);
+            scanInputRef.current?.focus();
+          }}
+        />
+      )}
+
+      {showManualEntry && (
+        <ManualEntryModal
+          busy={busy}
+          onSubmit={handleManualEntry}
+          onCancel={() => {
+            setShowManualEntry(false);
             scanInputRef.current?.focus();
           }}
         />
@@ -224,6 +252,19 @@ const styles: Record<string, React.CSSProperties> = {
     color: "#fff",
     width: "100%",
     maxWidth: 320,
+  },
+  manualWrapper: {
+    padding: "0 1.5rem",
+    textAlign: "center",
+  },
+  manualButton: {
+    padding: "0.7rem 1.2rem",
+    fontSize: "0.95rem",
+    fontWeight: 600,
+    borderRadius: 10,
+    border: "1px solid var(--border)",
+    background: "transparent",
+    color: "var(--text)",
   },
   closeWrapper: {
     padding: "1.5rem",
