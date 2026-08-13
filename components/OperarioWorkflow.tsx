@@ -172,7 +172,17 @@ export default function OperarioWorkflow({ userId }: { userId: string }) {
             labelCount={labelCount}
             lastScanned={lastScanned}
           />
-          <ScanInput ref={scanInputRef} onScan={handleScan} disabled={busy} />
+          <ScanInput
+            ref={scanInputRef}
+            onScan={handleScan}
+            disabled={
+              busy ||
+              showManualEntry ||
+              showCloseConfirm ||
+              !!duplicateEan ||
+              reopenPrompt !== null
+            }
+          />
           <div style={styles.manualWrapper}>
             <button
               disabled={busy}
