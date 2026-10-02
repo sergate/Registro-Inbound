@@ -35,9 +35,30 @@ export default async function TareasReportPage() {
 
   return (
     <main style={{ padding: "1.5rem" }}>
-      <h1 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-        Tareas realizadas
-      </h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
+      >
+        <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Tareas realizadas</h1>
+        <a
+          href="/api/consultas/export"
+          download
+          style={{
+            padding: "0.6rem 1rem",
+            borderRadius: 8,
+            background: "var(--accent)",
+            color: "#fff",
+            textDecoration: "none",
+            fontSize: "0.9rem",
+          }}
+        >
+          Descargar Excel
+        </a>
+      </div>
       {error && <p style={{ color: "var(--danger)" }}>{error.message}</p>}
       <TareasReportTable pallets={pallets} isAdmin={profile?.role === "admin"} />
     </main>
