@@ -21,8 +21,8 @@ export default function ConsultasPage() {
         <Link href="/consultas/seguimiento" style={cardStyle}>
           <div style={titleStyle}>Seguimiento de bultos</div>
           <div style={descStyle}>
-            Cada etiqueta escaneada, su pallet de ingreso y (a futuro) su
-            salida.
+            Cada etiqueta escaneada con su pallet de ingreso, su salida y si
+            está en stock o despachada.
           </div>
         </Link>
       </div>
