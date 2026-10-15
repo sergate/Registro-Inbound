@@ -1,6 +1,19 @@
 export type UserRole = "admin" | "supervisor" | "operario";
 export type PalletStatus = "open" | "closed";
 
+// Respuesta de la funcion despachar_etiqueta() de la base.
+export type DespacharResultado =
+  | { resultado: "ok" }
+  | { resultado: "no_ingresada" }
+  | { resultado: "despacho_invalido" }
+  | { resultado: "ingreso_abierto"; pallet_numero: number }
+  | {
+      resultado: "ya_despachada";
+      despacho_numero: number;
+      operario: string;
+      fecha: string;
+    };
+
 export interface Database {
   public: {
     Tables: {
@@ -60,6 +73,41 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      despachos: {
+        Row: {
+          id: string;
+          numero: number;
+          opened_by: string;
+          opened_at: string;
+          status: PalletStatus;
+          closed_at: string | null;
+          destino: string | null;
+          referencia: string | null;
+        };
+        Insert: {
+          opened_by: string;
+          destino?: string | null;
+          referencia?: string | null;
+        };
+        Update: {
+          status?: PalletStatus;
+          closed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      despacho_etiquetas: {
+        Row: {
+          id: string;
+          despacho_id: string;
+          pallet_label_id: string;
+          scanned_by: string;
+          scanned_at: string;
+        };
+        // Las cajas solo entran por la funcion despachar_etiqueta().
+        Insert: Record<string, never>;
+        Update: Record<string, never>;
+        Relationships: [];
+      };
     };
     Views: {
       pallet_summary: {
@@ -75,7 +123,12 @@ export interface Database {
         Relationships: [];
       };
     };
-    Functions: Record<string, never>;
+    Functions: {
+      despachar_etiqueta: {
+        Args: { p_despacho_id: string; p_ean13: string };
+        Returns: DespacharResultado;
+      };
+    };
     Enums: {
       user_role: UserRole;
       pallet_status: PalletStatus;

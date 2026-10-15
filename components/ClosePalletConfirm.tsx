@@ -7,18 +7,24 @@ export default function ClosePalletConfirm({
   labelCount,
   onConfirm,
   onCancel,
+  kindLabel = "pallet",
+  unitLabel = "bultos",
 }: {
   palletNumber: number;
   labelCount: number;
   onConfirm: () => void;
   onCancel: () => void;
+  kindLabel?: string;
+  unitLabel?: string;
 }) {
   return (
     <Modal>
-      <h2 style={{ marginTop: 0 }}>Cerrar pallet #{palletNumber}</h2>
+      <h2 style={{ marginTop: 0 }}>
+        Cerrar {kindLabel} #{palletNumber}
+      </h2>
       <p style={{ color: "var(--text-dim)" }}>
         Se registraron <strong style={{ color: "var(--text)" }}>{labelCount}</strong>{" "}
-        bultos en este pallet. ¿Confirmás el cierre?
+        {unitLabel} en este {kindLabel}. ¿Confirmás el cierre?
       </p>
       <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
         <button onClick={onCancel} style={styles.cancel}>

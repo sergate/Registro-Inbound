@@ -6,17 +6,21 @@ export default function ReopenPalletPrompt({
   closedPalletNumber,
   onOpenNew,
   onDismiss,
+  kindLabel = "pallet",
 }: {
   closedPalletNumber: number;
   onOpenNew: () => void;
   onDismiss: () => void;
+  kindLabel?: string;
 }) {
   return (
     <Modal>
       <h2 style={{ marginTop: 0, color: "var(--success)" }}>
-        Pallet #{closedPalletNumber} cerrado
+        {kindLabel.charAt(0).toUpperCase() + kindLabel.slice(1)} #{closedPalletNumber} cerrado
       </h2>
-      <p style={{ color: "var(--text-dim)" }}>¿Querés abrir un nuevo pallet?</p>
+      <p style={{ color: "var(--text-dim)" }}>
+        ¿Querés abrir un nuevo {kindLabel}?
+      </p>
       <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
         <button onClick={onDismiss} style={styles.no}>
           No

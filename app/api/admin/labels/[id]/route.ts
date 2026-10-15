@@ -17,7 +17,11 @@ export async function DELETE(
   const { error } = await adminClient.from("pallet_labels").delete().eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    const message =
+      error.code === "23503"
+        ? "No se puede borrar: esta caja ya fue despachada. Quitala primero del pallet de salida."
+        : error.message;
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   return NextResponse.json({ ok: true });

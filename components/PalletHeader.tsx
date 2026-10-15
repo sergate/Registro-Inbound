@@ -4,19 +4,28 @@ export default function PalletHeader({
   palletNumber,
   labelCount,
   lastScanned,
+  kindLabel = "Pallet",
+  countLabel = "bultos escaneados",
+  children,
 }: {
   palletNumber: number;
   labelCount: number;
   lastScanned: string | null;
+  kindLabel?: string;
+  countLabel?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div style={styles.wrapper}>
-      <div style={styles.palletNumber}>Pallet #{palletNumber}</div>
+      <div style={styles.palletNumber}>
+        {kindLabel} #{palletNumber}
+      </div>
       <div style={styles.count}>{labelCount}</div>
-      <div style={styles.countLabel}>bultos escaneados</div>
+      <div style={styles.countLabel}>{countLabel}</div>
       {lastScanned && (
         <div style={styles.lastScanned}>Último: {lastScanned}</div>
       )}
+      {children}
     </div>
   );
 }

@@ -7,12 +7,10 @@ import LogoutButton from "./LogoutButton";
 
 export default function HamburgerNav() {
   const [open, setOpen] = useState(false);
-  const [showSoon, setShowSoon] = useState(false);
   const pathname = usePathname();
 
   function close() {
     setOpen(false);
-    setShowSoon(false);
   }
 
   return (
@@ -40,16 +38,16 @@ export default function HamburgerNav() {
             >
               Ingresar Pallet
             </Link>
-            <button
-              type="button"
-              style={styles.linkButton}
-              onClick={() => setShowSoon(true)}
+            <Link
+              href="/app/despachar"
+              style={{
+                ...styles.link,
+                ...(pathname === "/app/despachar" ? styles.linkActive : {}),
+              }}
+              onClick={close}
             >
               Despachar Pallet
-            </button>
-            {showSoon && (
-              <p style={styles.soon}>Próximamente disponible.</p>
-            )}
+            </Link>
             <div style={styles.divider} />
             <LogoutButton style={{ width: "100%" }} />
           </nav>
@@ -106,20 +104,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   linkActive: {
     background: "var(--surface-2)",
-  },
-  linkButton: {
-    padding: "0.9rem 0.75rem",
-    borderRadius: 8,
-    border: "none",
-    background: "transparent",
-    color: "var(--text-dim)",
-    fontWeight: 600,
-    textAlign: "left",
-  },
-  soon: {
-    padding: "0 0.75rem",
-    fontSize: "0.85rem",
-    color: "var(--text-dim)",
   },
   divider: {
     height: 1,

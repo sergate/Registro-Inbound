@@ -1,29 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 
 export default function MobileMenu() {
-  const [showSoon, setShowSoon] = useState(false);
-
   return (
     <main style={styles.wrapper}>
-      <Link href="/app/ingresar" style={styles.primaryButton}>
+      <Link href="/app/ingresar" style={styles.inButton}>
         Ingresar Pallet
       </Link>
-      <button
-        type="button"
-        style={styles.disabledButton}
-        onClick={() => setShowSoon(true)}
-      >
+      <Link href="/app/despachar" style={styles.outButton}>
         Despachar Pallet
-      </button>
-      {showSoon && (
-        <p style={styles.soonText}>Próximamente disponible.</p>
-      )}
+      </Link>
     </main>
   );
 }
+
+const buttonBase: React.CSSProperties = {
+  display: "block",
+  width: "100%",
+  maxWidth: 320,
+  textAlign: "center",
+  padding: "1.2rem 2rem",
+  fontSize: "1.2rem",
+  fontWeight: 600,
+  borderRadius: 12,
+  border: "none",
+  textDecoration: "none",
+};
 
 const styles: Record<string, React.CSSProperties> = {
   wrapper: {
@@ -35,33 +38,14 @@ const styles: Record<string, React.CSSProperties> = {
     gap: "1.25rem",
     padding: "1.5rem",
   },
-  primaryButton: {
-    display: "block",
-    width: "100%",
-    maxWidth: 320,
-    textAlign: "center",
-    padding: "1.2rem 2rem",
-    fontSize: "1.2rem",
-    fontWeight: 600,
-    borderRadius: 12,
-    border: "none",
+  inButton: {
+    ...buttonBase,
     background: "var(--accent)",
     color: "#fff",
-    textDecoration: "none",
   },
-  disabledButton: {
-    width: "100%",
-    maxWidth: 320,
-    padding: "1.2rem 2rem",
-    fontSize: "1.2rem",
-    fontWeight: 600,
-    borderRadius: 12,
-    border: "1px solid var(--border)",
-    background: "var(--surface-2)",
-    color: "var(--text-dim)",
-  },
-  soonText: {
-    color: "var(--text-dim)",
-    fontSize: "0.9rem",
+  outButton: {
+    ...buttonBase,
+    background: "var(--out)",
+    color: "var(--out-ink)",
   },
 };

@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import {
   buildPalletsWorkbook,
+  type ExportDespacho,
+  type ExportDespachoEtiqueta,
   type ExportLabel,
   type ExportPallet,
 } from "@/lib/pallets-export";
@@ -36,6 +38,8 @@ export async function GET() {
 
   let pallets: ExportPallet[];
   let labels: ExportLabel[];
+  let despachos: ExportDespacho[];
+  let despachoEtiquetas: ExportDespachoEtiqueta[];
   try {
     pallets = await fetchAll<ExportPallet>((from, to) =>
       supabase
@@ -48,7 +52,23 @@ export async function GET() {
     labels = await fetchAll<ExportLabel>((from, to) =>
       supabase
         .from("pallet_labels")
-        .select("pallet_id, ean13, scanned_at")
+        .select("id, pallet_id, ean13, scanned_at")
+        .order("scanned_at", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+    despachos = await fetchAll<ExportDespacho>((from, to) =>
+      supabase
+        .from("despachos")
+        .select("id, numero, status, opened_at, closed_at, destino, referencia, profiles(username)")
+        .order("numero", { ascending: true })
+        .order("id", { ascending: true })
+        .range(from, to)
+    );
+    despachoEtiquetas = await fetchAll<ExportDespachoEtiqueta>((from, to) =>
+      supabase
+        .from("despacho_etiquetas")
+        .select("despacho_id, pallet_label_id, scanned_at")
         .order("scanned_at", { ascending: true })
         .order("id", { ascending: true })
         .range(from, to)
@@ -60,7 +80,7 @@ export async function GET() {
     );
   }
 
-  const buffer = await buildPalletsWorkbook(pallets, labels);
+  const buffer = await buildPalletsWorkbook(pallets, labels, despachos, despachoEtiquetas);
 
   const stamp = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Argentina/Buenos_Aires",
@@ -70,7 +90,7 @@ export async function GET() {
     headers: {
       "Content-Type":
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="pallets-ingresados-${stamp}.xlsx"`,
+      "Content-Disposition": `attachment; filename="pallets-y-despachos-${stamp}.xlsx"`,
       "Cache-Control": "no-store",
     },
   });

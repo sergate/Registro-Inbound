@@ -10,6 +10,9 @@
   --danger: #dc2626;
   --danger-hover: #b91c1c;
   --success: #16a34a;
+  /* modo salida (despacho): distinto del azul del ingreso */
+  --out: #14b8a6;
+  --out-ink: #04211f;
 }
 
 * {

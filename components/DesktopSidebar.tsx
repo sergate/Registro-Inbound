@@ -31,6 +31,9 @@ export default function DesktopSidebar({
           <Link href="/consultas/tareas" style={styles.link}>
             Tareas realizadas
           </Link>
+          <Link href="/consultas/despachos" style={styles.link}>
+            Despachos
+          </Link>
           <Link href="/consultas/seguimiento" style={styles.link}>
             Seguimiento de bultos
           </Link>

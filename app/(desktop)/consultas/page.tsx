@@ -12,6 +12,12 @@ export default function ConsultasPage() {
             escaneadas.
           </div>
         </Link>
+        <Link href="/consultas/despachos" style={cardStyle}>
+          <div style={titleStyle}>Despachos</div>
+          <div style={descStyle}>
+            Pallets de salida con las cajas que se despacharon en cada uno.
+          </div>
+        </Link>
         <Link href="/consultas/seguimiento" style={cardStyle}>
           <div style={titleStyle}>Seguimiento de bultos</div>
           <div style={descStyle}>
